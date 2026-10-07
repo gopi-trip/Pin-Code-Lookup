@@ -1,0 +1,36 @@
+from fastapi.responses import JSONResponse
+from fastapi import Request
+
+
+#Creating a custom class
+
+class PinCodeNotFoundError(Exception):
+    def __init__(self, pincode:str):
+        self.pincode = pincode
+
+class InvalidPinCodeError(Exception):
+    def __init__(self,pincode:str,reason:str = "Invalid format"):
+        self.pincode = pincode
+        self.reason = reason
+
+# Creating custom handlers for each of the above classes
+
+async def pincode_not_found_handler(request:Request,exception:PinCodeNotFoundError):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "Error":"Pincode not found",
+            "Message":f"No location for the pincode {exception.pincode}",
+            "Pincode":exception.pincode
+        }
+    )
+
+async def invalid_pincode_handler(request:Request,exception:InvalidPinCodeError):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "Error":"Pincode is not in the correct format",
+            "Message":f"Pincode: {exception.pincode} is not valid because of :{exception.reason}",
+            "Pincode":exception.pincode
+        }
+    )
